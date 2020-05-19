@@ -1,7 +1,7 @@
 # discord-music-bot
 
 ## A music bot for discord.
-Play music in your own discord server, easily hostable for free on heroku.
+Play music in your own discord server, easily hostable for free on heroku.   
 Queue songs from youtube links, in channel searching and queue entire spotify playlists directly to the bot.
 
 ### Dependencies:   
