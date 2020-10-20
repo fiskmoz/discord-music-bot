@@ -68,6 +68,18 @@ client.on("message", async (message) => {
     spotify(message);
   } else if (message.content.startsWith(`${config.prefix}searchyt `)) {
     searchyt(message);
+  } else if (message.content.startsWith(`${config.prefix}roll`)) {
+    const die = parseInt(message.content.split(" ")[1]);
+    !!die
+      ? message.channel.send(
+          "you rolled: " +
+            (
+              (Math.floor(Math.pow(10, 14) * Math.random() * Math.random()) %
+                (die - 1 + 1)) +
+              1
+            ).tostring()
+        )
+      : message.channel.send("invalid dice");
   } else {
     message.channel.send("You need to enter a valid command!");
   }
