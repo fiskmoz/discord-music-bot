@@ -77,7 +77,7 @@ client.on("message", async (message) => {
               (Math.floor(Math.pow(10, 14) * Math.random() * Math.random()) %
                 (die - 1 + 1)) +
               1
-            ).tostring()
+            ).toString()
         )
       : message.channel.send("invalid dice");
   } else {
