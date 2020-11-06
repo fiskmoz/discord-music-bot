@@ -20,10 +20,11 @@ module.exports = {
     }
 
     const args = message.content.split(" ");
-    const songInfo = await ytdl.getInfo(args[1]);
+    let url = args[1];
+    const songInfo = await ytdl.getBasicInfo(url);
     const song = {
-      title: songInfo.title,
-      url: songInfo.video_url,
+      title: songInfo.player_response.videoDetails.title,
+      url: url,
     };
     if (!song || !songInfo) {
       return message.channel.send("Cannot play that song");
@@ -41,6 +42,12 @@ module.exports = {
       musicQueue.set(message.guild.id, queueContruct);
 
       queueContruct.songs.push(song);
+      for (let index = 0; index < args.length; index++) {
+        if (index < 2) continue;
+        queueContruct.songs.push({ title: "hej", url: args[index] });
+        console.log("added another song");
+      }
+      console.log(queueContruct.songs);
 
       try {
         var connection = await voiceChannel.join();
@@ -118,6 +125,10 @@ module.exports = {
       songs = songs.concat(queueForSpecificServer.songs[element].title + "\n");
     });
     return message.channel.send(`current queue: \n${songs}`);
+  },
+
+  addSongs: function addSong(song, queueForSpecificServer) {
+    queueForSpecificServer.songs.push(song);
   },
 };
 function playNextSong(guild, song, musicQueue, repeat) {

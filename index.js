@@ -65,9 +65,9 @@ client.on("message", async (message) => {
   } else if (message.content.startsWith(`${config.prefix}list`)) {
     musicCommands.listSongs(message, queueForSpecificServer);
   } else if (message.content.startsWith(`${config.prefix}spotify `)) {
-    spotify(message);
+    spotify(message, queueForSpecificServer);
   } else if (message.content.startsWith(`${config.prefix}searchyt `)) {
-    searchyt(message);
+    searchyt(message, queueForSpecificServer);
   } else if (message.content.startsWith(`${config.prefix}roll`)) {
     const die = parseInt(message.content.split(" ")[1]);
     !!die
@@ -96,19 +96,19 @@ function play(message) {
   musicCommands.playMusic(message, queueForSpecificServer, musicQueue, repeat);
 }
 
-async function spotify(message) {
+async function spotify(message, queueForSpecificServer) {
   if (message.content.split(" ").length != 2)
     return message.channel.send("format is invalid");
   let links = await spotifyCommands.findSpotifyPlaylist(message);
   if (!Array.isArray(links)) return message.channel.send(config.errorMsg);
-
+  message.content = "!play ";
   links.forEach((link) => {
-    message.content = "!play " + link;
-    musicCommands.playMusic(message, queueForSpecificServer, musicQueue, false);
+    message.content += link + " ";
   });
+  musicCommands.playMusic(message, queueForSpecificServer, musicQueue, false);
 }
 
-async function searchyt(message) {
+async function searchyt(message, queueForSpecificServer) {
   const searchString = message.content.replace(`${config.prefix}searchyt `, "");
   var options = {
     maxResults: 1,
@@ -117,6 +117,7 @@ async function searchyt(message) {
     key: config.youtubeApiKey,
   };
   var links = await youtubeSearch.searchYoutube([searchString], options);
+  message.content = "!play " + links[0];
   links.forEach((link) => {
     message.content = "!play " + link;
     musicCommands.playMusic(message, queueForSpecificServer, musicQueue, false);

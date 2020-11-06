@@ -2,7 +2,7 @@ var request = require("request-promise");
 const youtubeSearch = require("./youtube_search.js");
 let spotify_config;
 try {
-  spotify_config = require("./config.json");
+  spotify_config = require("../config.json");
 } catch (exception) {
   spotify_config = {
     spotifyPlaylistUrl: process.env.spotifyPlaylistUrl,
@@ -22,6 +22,9 @@ module.exports = {
     const args = message.content.split(" ");
     const playlistId = args[1].split("/").slice(-1).pop();
     const playlist = await getSpotifyPlaylist(playlistId, currentToken);
+    if (!playlist) {
+      return message.channel.send("No playlist found");
+    }
     if (playlist["tracks"]["items"] == 0)
       return message.channel.send("i could not get the spotify playlist.");
     playlist["tracks"]["items"].forEach((track) => {
@@ -36,6 +39,8 @@ module.exports = {
       type: "video",
       key: spotify_config.youtubeApiKey,
     };
+    console.log(searchTags);
+    console.log(options);
     const links = await youtubeSearch.searchYoutube(searchTags, options);
     return links;
   },
@@ -51,13 +56,12 @@ async function spotifyAuth() {
   var dataString = "grant_type=client_credentials";
 
   var options = {
-    url: spotify_config.spotifyAuthUrl,
     method: "POST",
     headers: headers,
     body: dataString,
   };
 
-  var res = await request(options);
+  var res = await request(spotify_config.spotifyAuthUrl, options);
   res = JSON.parse(res);
   return res["access_token"];
 }
@@ -68,11 +72,10 @@ async function getSpotifyPlaylist(id, authToken) {
     "content-type": "application/x-www-form-urlencoded",
   };
   var options = {
-    url: spotify_config.spotifyPlaylistUrl + id,
     method: "GET",
     headers: headers,
   };
 
-  var res = await request(options);
+  var res = await request(spotify_config.spotifyPlaylistUrl + id, options);
   return JSON.parse(res);
 }
