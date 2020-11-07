@@ -1,7 +1,7 @@
 {
   "name": "music-bot",
   "version": "1.0.0",
-  "type": "module",
+  "type": "commonjs",
   "description": "my first discord music bot",
   "main": "index.js",
   "dependencies": {
