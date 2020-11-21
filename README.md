@@ -1,9 +1,9 @@
-# discord-music-bot
+# Discord-music-bot
 
 ## A node typescript music bot for discord.
 
 Play music in your own discord server, easily hostable for free on heroku.  
-Queue songs from youtube links, in channel searching and queue entire spotify playlists directly to the bot.
+Queue songs from youtube links, in channel searching or queue entire spotify playlists directly to the bot.
 
 ### Run:
 
@@ -22,7 +22,7 @@ For development on localhost a config.json file in the following structure in th
 }
 ```
 
-For hosting in cloud etc use config vars:
+For hosting on heroku use following config vars (env variables):
 
 ```
 discordToken : "***",
@@ -32,15 +32,15 @@ spotifyPlaylistUrl : "https://api.spotify.com/v1/playlists/",
 spotifyAuthUrl : "https://accounts.spotify.com/api/token",
 ```
 
-## Features:
+### Features:
 
 - Play music from youtube link
 - Search and play from youtube directly in discord.
 - Pause/Resume
-- Show current song and the queue.
+- Show current song or the queue.
 - Queue an entire playlist from spotify
 
-Commands:  
+### Commands:  
 !play [youtubeurl] (play from youtube url)  
 !searchyt [text to search] (searches and plays matching clip)  
 !pause (pause)  
