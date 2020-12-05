@@ -16,6 +16,8 @@ export class MusicQueue {
   ): Promise<void> {
     if (!song) {
       const songInfo = await this.youtube.getBasicInfo(url);
+      if (!songInfo)
+        return console.log("cannot fetch from youtube at the moment");
       song = {
         title: songInfo.player_response.videoDetails.title,
         url: url,

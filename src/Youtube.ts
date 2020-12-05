@@ -51,8 +51,13 @@ export class Youtube {
       );
     });
   }
-  public async getBasicInfo(videoUrl: string): Promise<videoInfo> {
-    return await ytdl.getBasicInfo(videoUrl);
+  public async getBasicInfo(videoUrl: string): Promise<videoInfo | null> {
+    try {
+      return await ytdl.getBasicInfo(videoUrl);
+    } catch (e) {
+      console.log(e);
+      return null;
+    }
   }
 
   public getStream(url: string): internal.Readable {
