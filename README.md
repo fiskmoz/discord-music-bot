@@ -44,7 +44,7 @@ spotifyAuthUrl : "https://accounts.spotify.com/api/token",
 
 !play [youtubeurl] (play from youtube url)  
 !ytsearch [text to search] (searches and plays matching clip)  
-!ytplaylist [youtube playlist url] (plays entire yt playlist, max 20 songs)
+!ytplaylist [youtube playlist url] (plays entire yt playlist, max 20 songs)    
 !pause (pause)  
 !resume (resume)  
 !skip (skip to next song)  
