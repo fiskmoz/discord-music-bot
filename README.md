@@ -40,9 +40,11 @@ spotifyAuthUrl : "https://accounts.spotify.com/api/token",
 - Show current song or the queue.
 - Queue an entire playlist from spotify
 
-### Commands:  
+### Commands:
+
 !play [youtubeurl] (play from youtube url)  
-!searchyt [text to search] (searches and plays matching clip)  
+!ytsearch [text to search] (searches and plays matching clip)  
+!ytplaylist [youtube playlist url] (plays entire yt playlist, max 20 songs)
 !pause (pause)  
 !resume (resume)  
 !skip (skip to next song)  

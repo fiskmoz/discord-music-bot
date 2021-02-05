@@ -6,7 +6,11 @@ import {
   TextChannel,
 } from "discord.js";
 import { Dice } from "./Dice";
-import { DiscordConfig, Song } from "./interfaces/interfaces";
+import {
+  DiscordConfig,
+  Song,
+  YoutubeVideoResult,
+} from "./interfaces/interfaces";
 import { MusicQueue } from "./MusicQueue";
 import { Spotify } from "./Spotify";
 import { Youtube } from "./Youtube";
@@ -92,8 +96,11 @@ export class DiscordBot {
         case "!spotify":
           this.handleSpotify(message.content.split(" ").slice(1), message);
           break;
-        case "!searchyt":
+        case "!ytsearch":
           this.handleSearchyt(message.content.split(" ").slice(1), message);
+          break;
+        case "!ytplaylist":
+          this.handlePlaylistyt(message.content.split(" ").slice(1), message);
           break;
         case "!roll":
           this.handleDieRoll(
@@ -152,13 +159,40 @@ export class DiscordBot {
     data: string[],
     message: Message
   ): Promise<void> {
-    let searchTag = data[0];
-    if (!!searchTag) {
-      const result = await this.youtube.searchYoutube(searchTag);
+    let searchTags = data;
+    if (!!searchTags) {
+      const result = await this.youtube.searchYoutube(searchTags.join(" "));
       this.musicQueue.playMusic(message.member.guild.id, message, result.link, {
         title: result.title,
         url: result.link,
       } as Song);
+      return;
+    }
+  }
+
+  private async handlePlaylistyt(
+    data: string[],
+    message: Message
+  ): Promise<void> {
+    let link = data[0];
+    const id = link.split("=")[1];
+    if (!!id) {
+      const result = await this.youtube.getPlaylist(id);
+      result.forEach((v: YoutubeVideoResult, index: number) => {
+        const song = {
+          title: v.snippet.title,
+          url:
+            "https://www.youtube.com/watch?v=" + v.snippet.resourceId.videoId,
+        } as Song;
+        !!index
+          ? this.musicQueue.addSongToQueue(message.member.guild.id, song)
+          : this.musicQueue.playMusic(
+              message.member.guild.id,
+              message,
+              "https://www.youtube.com/watch?v=" + v.snippet.resourceId.videoId,
+              song
+            );
+      });
       return;
     }
   }
