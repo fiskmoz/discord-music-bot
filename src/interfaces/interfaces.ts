@@ -1,6 +1,5 @@
 import {
   DMChannel,
-  GroupDMChannel,
   TextChannel,
   VoiceChannel,
   VoiceConnection,
@@ -21,7 +20,7 @@ export interface DiscordConfig {
 }
 
 export interface Queue {
-  textChannel: TextChannel | DMChannel | GroupDMChannel;
+  textChannel: TextChannel | DMChannel;
   voiceChannel: VoiceChannel;
   connection?: VoiceConnection;
   songs: Song[];
