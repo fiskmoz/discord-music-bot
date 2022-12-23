@@ -1,10 +1,10 @@
-import { Message } from "discord.js";
-import { Queue, Song } from "./interfaces/interfaces";
-import { Youtube } from "./Youtube";
+import { Message, VoiceChannel } from "discord.js";
+import { YoutubeIntegration } from "../integrations/youtube-integration";
+import { Queue, Song } from "../interfaces/interfaces";
 
 export class MusicQueue {
   private serverQueues = new Map<string, Queue>();
-  private youtube = new Youtube();
+  private youtube = new YoutubeIntegration();
 
   constructor() {}
 
@@ -33,13 +33,9 @@ export class MusicQueue {
     if (!!queue) {
       if (!queue.connection) {
         console.log("Establishing new voice channel connection");
-        try {
-          var connection = await queue.voiceChannel.join();
-          queue.connection = connection;
-          this.playSong(guildId, queue.songs[0]);
-        } catch (e: any) {
-          console.log(e);
-        }
+        var connection = await queue.voiceChannel.join();
+        queue.connection = connection;
+        this.playSong(guildId, queue.songs[0]);
       } else {
         message.channel.send("Added " + song.title + " to the queue");
       }
@@ -58,7 +54,7 @@ export class MusicQueue {
     if (!!queue) {
       if (!!queue.connection) {
         const dispatcher = queue.connection
-          .playStream(this.youtube.getStream(song.url))
+          .play(this.youtube.getStream(song.url))
           .on("end", (reason: string) => {
             queue.songs.shift();
             if (!!queue.songs.length) {
@@ -78,13 +74,13 @@ export class MusicQueue {
   public stopPlaying(guildId: string): void {
     const queue = this.serverQueues.get(guildId);
     if (!!queue) {
-      queue.voiceChannel.leave();
+      queue.voiceChannel.delete();
       this.serverQueues.delete(guildId);
     }
   }
 
   public skip(message: Message) {
-    if (!message.member.voiceChannel)
+    if (!message?.member?.voice.channel)
       return message.channel.send(
         "You have to be in a voice channel to stop the music!"
       );
@@ -97,7 +93,7 @@ export class MusicQueue {
   }
 
   public pause(message: Message) {
-    if (!message.member.voiceChannel)
+    if (!message?.member?.voice.channel)
       return message.channel.send(
         "You have to be in a voice channel to pause the music!"
       );
@@ -110,20 +106,20 @@ export class MusicQueue {
   }
 
   public resume(message: Message) {
-    if (!message.member.voiceChannel)
+    if (!message?.member?.voice.channel)
       return message.channel.send(
         "You have to be in a voice channel to resume the music!"
       );
     const queue = this.serverQueues.get(message.member.guild.id);
     if (!!queue) {
       if (!!queue.connection) {
-        queue.connection.dispatcher.resume();
+        queue.connection;
       }
     }
   }
 
   public current(message: Message) {
-    const queue = this.serverQueues.get(message.member.guild.id);
+    const queue = this.serverQueues.get(message?.member?.guild?.id ?? "");
     if (!queue) {
       return message.channel.send("No song playing!");
     } else {
@@ -134,7 +130,7 @@ export class MusicQueue {
   }
 
   public list(message: Message) {
-    const queue = this.serverQueues.get(message.member.guild.id);
+    const queue = this.serverQueues.get(message?.member?.guild?.id ?? "");
     if (!queue) {
       return message.channel.send("No song playing!");
     } else {
@@ -147,10 +143,10 @@ export class MusicQueue {
   }
 
   private initQueue(message: Message): void {
-    if (!this.serverQueues.get(message.member.guild.id)) {
-      this.serverQueues.set(message.member.guild.id, {
+    if (!this.serverQueues.get(message?.member?.guild?.id ?? "")) {
+      this.serverQueues.set(message?.member?.guild?.id ?? "", {
         textChannel: message.channel,
-        voiceChannel: message.member.voiceChannel,
+        voiceChannel: message?.member?.voice.channel,
         connection: undefined,
         songs: [],
         volume: 2,

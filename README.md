@@ -52,3 +52,9 @@ spotifyAuthUrl : "https://accounts.spotify.com/api/token",
 !current (show what is currently playing)  
 !list (show the current queue)  
 !spotify [playlisturl] (parses spotify playlist and add all songs from it to the queue)
+
+
+### Update all packages to latest:
+
+`npm-check-updates`  
+`ncu -u`

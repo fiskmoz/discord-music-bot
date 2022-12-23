@@ -1,32 +1,26 @@
-import {
-  Client,
-  DMChannel,
-  GroupDMChannel,
-  Message,
-  TextChannel,
-} from "discord.js";
-import { Dice } from "./Dice";
+import { Client, ClientOptions, Message, TextChannel } from "discord.js";
+import { SpotifyIntegration } from "../integrations/spotify-integration";
+import { YoutubeIntegration } from "../integrations/youtube-integration";
 import {
   DiscordConfig,
   Song,
   YoutubeVideoResult,
-} from "./interfaces/interfaces";
-import { MusicQueue } from "./MusicQueue";
-import { Spotify } from "./Spotify";
-import { Youtube } from "./Youtube";
+} from "../interfaces/interfaces";
+import { Dice } from "./dice-roller";
+import { MusicQueue } from "./music-queue";
 
 export class DiscordBot {
   private config: DiscordConfig;
   private static instance: DiscordBot;
-  private client: Client = new Client();
+  private client: Client = new Client({} as ClientOptions);
   private dice: Dice = new Dice();
   private musicQueue = new MusicQueue();
-  private spotify = new Spotify();
-  private youtube = new Youtube();
+  private spotify = new SpotifyIntegration();
+  private youtube = new YoutubeIntegration();
 
   private constructor() {
     try {
-      this.config = require("../config.json");
+      this.config = require("../../config.json");
     } catch (exception) {
       this.config = {
         discordToken: !!process.env.discordToken
@@ -48,9 +42,10 @@ export class DiscordBot {
     this.client
       .login(this.config.discordToken)
       .then((_) => console.log("Connected to Discord"))
-      .catch((error) =>
-        console.error(`Could not connect. Error: ${error.message}`)
-      );
+      .catch((error) => {
+        console.log(error);
+        console.error(`Could not connect. Error: ${error.message}`);
+      });
   }
 
   private initializeCient(): void {
@@ -62,7 +57,7 @@ export class DiscordBot {
 
   private setReadyHandler(): void {
     this.client.on("ready", () => {
-      console.log(`Logged in as ${this.client.user.tag}!`);
+      console.log(`Logged in as ${this.client?.user?.tag}!`);
     });
   }
 
@@ -79,7 +74,7 @@ export class DiscordBot {
           this.musicQueue.skip(message);
           break;
         case "!stop":
-          this.musicQueue.stopPlaying(message.member.guild.id);
+          this.musicQueue.stopPlaying(message.member?.guild?.id ?? "");
           break;
         case "!pause":
           this.musicQueue.pause(message);
@@ -103,9 +98,10 @@ export class DiscordBot {
           this.handlePlaylistyt(message.content.split(" ").slice(1), message);
           break;
         case "!roll":
+          if (typeof message.channel != typeof TextChannel) return;
           this.handleDieRoll(
             message.content.split(" ").slice(1),
-            message.channel
+            message.channel as TextChannel
           );
           break;
         default:
@@ -120,7 +116,7 @@ export class DiscordBot {
   private handlePlay(message: Message): void {
     if (!this.ensureInVoiceChannel(message)) return;
     this.musicQueue.playMusic(
-      message.member.guild.id,
+      message?.member?.guild?.id ?? "",
       message,
       message.content.split(" ")[1]
     );
@@ -141,12 +137,15 @@ export class DiscordBot {
           const song = { title: res.title, url: res.link };
           !tracks.indexOf(track)
             ? this.musicQueue.playMusic(
-                message.member.guild.id,
+                message?.member?.guild?.id ?? "",
                 message,
                 res.link,
                 song
               )
-            : this.musicQueue.addSongToQueue(message.member.guild.id, song);
+            : this.musicQueue.addSongToQueue(
+                message?.member?.guild?.id ?? "",
+                song
+              );
         }
         return;
       }
@@ -162,10 +161,15 @@ export class DiscordBot {
     let searchTags = data;
     if (!!searchTags) {
       const result = await this.youtube.searchYoutube(searchTags.join(" "));
-      this.musicQueue.playMusic(message.member.guild.id, message, result.link, {
-        title: result.title,
-        url: result.link,
-      } as Song);
+      this.musicQueue.playMusic(
+        message?.member?.guild?.id ?? "",
+        message,
+        result.link,
+        {
+          title: result.title,
+          url: result.link,
+        } as Song
+      );
       return;
     }
   }
@@ -185,9 +189,12 @@ export class DiscordBot {
             "https://www.youtube.com/watch?v=" + v.snippet.resourceId.videoId,
         } as Song;
         !!index
-          ? this.musicQueue.addSongToQueue(message.member.guild.id, song)
+          ? this.musicQueue.addSongToQueue(
+              message?.member?.guild?.id ?? "",
+              song
+            )
           : this.musicQueue.playMusic(
-              message.member.guild.id,
+              message?.member?.guild?.id ?? "",
               message,
               "https://www.youtube.com/watch?v=" + v.snippet.resourceId.videoId,
               song
@@ -197,10 +204,7 @@ export class DiscordBot {
     }
   }
 
-  private handleDieRoll(
-    data: string[],
-    channel: TextChannel | DMChannel | GroupDMChannel
-  ): void {
+  private handleDieRoll(data: string[], channel: TextChannel): void {
     const num = parseInt(data[0]);
     if (!num) return console.log("invalid number");
     const roll = this.dice.getDieRoll(num);
@@ -208,12 +212,14 @@ export class DiscordBot {
   }
 
   private ensureInVoiceChannel(message: Message): boolean {
-    const voiceChannel = message.member.voiceChannel;
+    const voiceChannel = message?.member?.voice?.channel;
     if (!voiceChannel) {
       message.channel.send("You need to be in a voice channel to play music!");
       return false;
     }
-    const permissions = voiceChannel.permissionsFor(message.client.user);
+    const permissions = voiceChannel.permissionsFor(
+      message?.client?.user ?? ""
+    );
     if (
       !permissions ||
       !permissions.has("CONNECT") ||

@@ -7,9 +7,9 @@ import {
   YoutubeRequestConfig,
   YouTubeSearchResults,
   YoutubeVideoResult,
-} from "./interfaces/interfaces";
+} from "../interfaces/interfaces";
 
-export class Youtube {
+export class YoutubeIntegration {
   private config: YoutubeConfig;
 
   public constructor() {

@@ -1,4 +1,4 @@
-import { DiscordBot } from "./DiscordBot";
+import { DiscordBot } from "./functions/discord-bot";
 
 const bot = DiscordBot.getInstance();
 

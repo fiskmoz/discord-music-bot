@@ -1,7 +1,7 @@
 import Axios, { AxiosRequestConfig } from "axios";
-import { SpotifyConfig } from "./interfaces/interfaces";
+import { SpotifyConfig } from "../interfaces/interfaces";
 
-export class Spotify {
+export class SpotifyIntegration {
   private config: SpotifyConfig;
   public constructor() {
     try {
